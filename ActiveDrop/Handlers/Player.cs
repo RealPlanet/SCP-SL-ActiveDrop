@@ -46,7 +46,7 @@ namespace ActiveDrop.Handlers
         private void DropFlash(DyingEventArgs ev)
         {
             var grenadeFlashItem = ev.Target.Items.FirstOrDefault(x => x.id == ItemType.GrenadeFlash);
-            float grenadeFuse = ActiveDrop.Instance.Config.FlashFuse;
+            float grenadeFuse = CalculateFuse(ActiveDrop.Instance.Config.FlashFuse);
 
             if (grenadeFlashItem == null)
             {
@@ -63,7 +63,8 @@ namespace ActiveDrop.Handlers
         private void DropFrag(DyingEventArgs ev)
         {
             var grenadeFragItem = ev.Target.Items.FirstOrDefault(x => x.id == ItemType.GrenadeFlash);
-            float grenadeFuse = ActiveDrop.Instance.Config.FragFuse;
+            float grenadeFuse = CalculateFuse(ActiveDrop.Instance.Config.FragFuse);
+
             if (grenadeFragItem == null)
             {
                 Log.Error("Attempted to drop flash grenade from dead player, but player had no flash grenade");
@@ -79,8 +80,6 @@ namespace ActiveDrop.Handlers
         private void DropSCP018(DyingEventArgs ev)
         {
             var SCPItem = ev.Target.Items.FirstOrDefault(x => x.id == ItemType.SCP018);
-            float grenadeFuse = ActiveDrop.Instance.Config.SCP018Duration;
-
             if (SCPItem == null)
             {
                 Log.Error("Attempted to drop flash grenade from dead player, but player had no flash grenade");
@@ -88,7 +87,7 @@ namespace ActiveDrop.Handlers
             }
 
             ev.Target.RemoveItem(SCPItem);
-            SpawnObjectOnPlayer(grenadeFuse, ItemType.SCP018, ev.Target);
+            SpawnObjectOnPlayer(0f, ItemType.SCP018, ev.Target);
             hasDropped = true;
         }
 
@@ -97,17 +96,42 @@ namespace ActiveDrop.Handlers
             return ActiveDrop.Instance.Config.DropMultiple || !hasDropped;
         }
 
-        public Grenade SpawnObjectOnPlayer(float fuseTime, ItemType grenadeType, Exiled.API.Features.Player player)
+        private float CalculateFuse(float timer)
+        {
+            if(ActiveDrop.Instance.Config.RandomVariation)
+            {
+                float variation = ActiveDrop.Instance.Config.FuseVariation;
+                timer += RandomGenerator.GetFloat(-variation, variation);
+                if(timer < 0)
+                {
+                    timer = 0f;
+                }
+            }
+            return timer;
+        }
+        private Grenade SpawnObjectOnPlayer(float fuseTime, ItemType grenadeType, Exiled.API.Features.Player player)
         {
             GrenadeSettings settings = player.GrenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == grenadeType);
-
-            Vector3 position = player.CameraTransform.position;
-            Grenade grenade = GameObject.Instantiate(settings.grenadeInstance, position, Quaternion.identity).GetComponent<Grenade>();
-
             
-            grenade.NetworkfuseTime = NetworkTime.time + fuseTime;
+            Vector3 position = player.CameraTransform.position;
 
-            //Tracked.Add(grenade.gameObject);
+            // Init grenade data
+            Grenade grenade = null;
+            if (grenadeType != ItemType.SCP018)
+            {
+                grenade = GameObject.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();  
+                grenade.fuseDuration = fuseTime;
+                grenade.NetworkfuseTime = NetworkTime.time + fuseTime;
+            }
+            else
+            {
+                grenade = GameObject.Instantiate(settings.grenadeInstance).GetComponent<Scp018Grenade>();
+                grenade.InitData(player.GrenadeManager, position, Vector3.zero);
+            }
+
+            grenade.InitData(player.GrenadeManager, position, Vector3.zero);
+            grenade.throwerTeam = player.Team;
+            grenade.NetworkthrowerTeam = player.Team;
 
             Log.Debug($"Spawning grenade at {position} because of ActiveDrop Plugin. GrenadeType is {grenade.name}");
             NetworkServer.Spawn(grenade.gameObject);
