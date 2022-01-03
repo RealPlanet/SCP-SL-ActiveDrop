@@ -19,7 +19,16 @@ namespace ActiveDrop
         [Description("Sets the probability for a FlashGrenade to automatically drop on holder death")]
         public int GrenadeFlashChance { get; set; } = 50;
 
-        [Description("Sets the probability for SCP018 to automatically drop on holder death")]
-        public int SCP018Chance { get; set; } = 50;
+        [Description("How long until the dropped frag grenade explodes")]
+        public float FragFuse { get; set; } = 3f;
+
+        [Description("How long until the dropped flash grenade explodes")]
+        public float FlashFuse { get; set; } = 1f;
+
+        [Description("Variation of +/- VALUE will be used if the setting \"RandomVariation\" is active")]
+        public float FuseVariation { get; set; } = 0.5f;
+
+        [Description("How high should the grenade spawn from the player origin, default should be enough")]
+        public float GrenadeSpawnVerticalOffset = 0.1f;
     }
 }

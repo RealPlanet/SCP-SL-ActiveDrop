@@ -14,17 +14,17 @@ namespace ActiveDrop
         public override string Author => "Planet";
         public override string Name => "Active Drop";
         public override string Prefix => "AD";
-        public override Version Version => new Version(2, 0, 0);
+        public override Version Version => new Version(2, 0, 1);
         public override Version RequiredExiledVersion => new Version(4, 2, 2);
         public override PluginPriority Priority => PluginPriority.Default;
         #endregion
 
-        private Handlers.Player player;
+        private Handlers.PlayerHandler player;
         private ActiveDrop(){}
 
         public override void OnEnabled()
         {
-            player = new Handlers.Player();
+            player = new Handlers.PlayerHandler();
             RegisterEvents();
         }
 

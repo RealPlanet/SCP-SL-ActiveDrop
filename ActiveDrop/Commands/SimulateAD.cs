@@ -7,21 +7,23 @@ using System;
 namespace ActiveDrop.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    class Suicide : ICommand
+    class SimulateAD : ICommand
     {
-        public string Command { get; } = "suicide";
+        public string Command { get; } = "ActiveDropMe";
 
-        public string[] Aliases { get; } = {"killme"};
+        public string[] Aliases { get; } = {"ADMe"};
 
-        public string Description { get; } = "Simple command to kill your character without special requirements";
+        public string Description { get; } = "Execute ActiveDrop logic without death, for testing purposes";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if(sender is PlayerCommandSender player)
             {
-                response = $"Killing { player.Nickname }";
+                response = $"Attempting to drop items";
                 Player actualPlayer = Player.Get(player.SenderId);
-                actualPlayer.Kill("Suicide");
+                var Test = new Handlers.PlayerHandler();
+                Test.TestingEntryPoint(actualPlayer);
+
                 return true;
             }
 
