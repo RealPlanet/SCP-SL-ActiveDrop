@@ -14,8 +14,8 @@ namespace ActiveDrop
         public override string Author => "Planet";
         public override string Name => "Active Drop";
         public override string Prefix => "AD";
-        public override Version Version => new Version(1, 0, 0);
-        public override Version RequiredExiledVersion => new Version(2, 11, 1);
+        public override Version Version => new Version(2, 0, 0);
+        public override Version RequiredExiledVersion => new Version(4, 2, 2);
         public override PluginPriority Priority => PluginPriority.Default;
         #endregion
 

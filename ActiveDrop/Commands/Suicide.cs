@@ -21,7 +21,7 @@ namespace ActiveDrop.Commands
             {
                 response = $"Killing { player.Nickname }";
                 Player actualPlayer = Player.Get(player.SenderId);
-                actualPlayer.Kill();
+                actualPlayer.Kill("Suicide");
                 return true;
             }
 
