@@ -9,7 +9,12 @@
     <Platforms>AnyCPU;x64</Platforms>
     <Version>2.0.1</Version>
     <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <UserSecretsId>711d3f9b-6b9f-4043-80f9-97a1f2ea012c</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EXILED" Version="5.0.0-beta.5" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -17,12 +22,6 @@
     </Reference>
     <Reference Include="CommandSystem.Core">
       <HintPath>D:\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\CommandSystem.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Exiled.API">
-      <HintPath>..\..\EXILED\EXILED\Plugins\dependencies\Exiled.API.dll</HintPath>
-    </Reference>
-    <Reference Include="Exiled.Events">
-      <HintPath>..\..\EXILED\EXILED\Plugins\Exiled.Events.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Loader">
       <HintPath>..\..\EXILED\EXILED\Exiled.Loader.dll</HintPath>

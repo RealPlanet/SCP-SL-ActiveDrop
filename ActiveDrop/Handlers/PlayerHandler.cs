@@ -27,54 +27,42 @@ namespace ActiveDrop.Handlers
             int DiceRoll = RandomGenerator.GetInt16(0, 99);
             if (DiceRoll < FlashChance && FlashCount > 0)
             {
-                DropFlash(Target, FlashCount);
+                DropGrenade<FlashGrenade>(Target, FlashCount, ItemType.GrenadeFlash);
             }
 
             DiceRoll = RandomGenerator.GetInt16(0, 99);
             if (DiceRoll < FragChance && FragCount > 0 && CanDrop())
             {
-                DropFrag(Target, FragCount);
+                DropGrenade<ExplosiveGrenade>(Target, FlashCount, ItemType.GrenadeHE);
             }
         }
 
-        private void DropFlash(Exiled.API.Features.Player Target, int Count)
+        private void DropGrenade<T>(Exiled.API.Features.Player Target, int Count, ItemType ItemType) where T : Item
         {
-            var GrenadeFlashItem = Target.Items.FirstOrDefault(x => x.Type == ItemType.GrenadeFlash);
-            float GrenadeFuse = CalculateFuse(ActiveDrop.Instance.Config.FlashFuse);
+            T GrenadeItem = Target.Items.FirstOrDefault(x => x.Type == ItemType) as T;
 
-            if (GrenadeFlashItem == null)
+            if (GrenadeItem == null)
             {
                 Log.Error($"Attempted to drop flash grenade from dead player, but player had no flash grenade, Count is {Count}");
                 return;
             }
 
             // Spawn the grenade only if removing the item was successful
-            if (Target.RemoveItem(GrenadeFlashItem))
+            if (Target.RemoveItem(GrenadeItem))
             {
-                var Grenade = new FlashGrenade(ItemType.GrenadeFlash, Target);
-                Grenade.FuseTime = GrenadeFuse;
-                Grenade.SpawnActive(Target.Position + (Vector3.up * ActiveDrop.Instance.Config.GrenadeSpawnVerticalOffset));
-                HasDropped = true;
-            }
-        }
+                if(GrenadeItem is FlashGrenade)
+                {
+                    var Explosive = GrenadeItem as FlashGrenade;
+                    Explosive.FuseTime = CalculateFuse(ActiveDrop.Instance.Config.FlashFuse);
+                    Explosive.SpawnActive(Target.Position + (Vector3.up * ActiveDrop.Instance.Config.GrenadeSpawnVerticalOffset), Target);
+                }
+                else if(GrenadeItem is ExplosiveGrenade)
+                {
+                    var Explosive = GrenadeItem as ExplosiveGrenade;
+                    Explosive.FuseTime = CalculateFuse(ActiveDrop.Instance.Config.FragFuse);
+                    Explosive.SpawnActive(Target.Position + (Vector3.up * ActiveDrop.Instance.Config.GrenadeSpawnVerticalOffset), Target);
+                }
 
-        private void DropFrag(Exiled.API.Features.Player Target, int Count)
-        {
-            var GrenadeFragItem = Target.Items.FirstOrDefault(x => x.Type == ItemType.GrenadeHE);
-            float GrenadeFuse = CalculateFuse(ActiveDrop.Instance.Config.FragFuse);
-
-            if (GrenadeFragItem == null)
-            {
-                Log.Error($"Attempted to drop explosive grenade from dead player, but player had no explosive grenade, Count is {Count}");
-                return;
-            }
-
-            // Spawn the grenade only if removing the item was successful
-            if (Target.RemoveItem(GrenadeFragItem))
-            {
-                var Grenade = new ExplosiveGrenade(ItemType.GrenadeHE, Target);
-                Grenade.FuseTime = GrenadeFuse;
-                Grenade.SpawnActive(Target.Position + (Vector3.up * 0.25f));
                 HasDropped = true;
             }
         }
